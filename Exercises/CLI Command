@@ -1,0 +1,60 @@
+crypto ikev2 proposal WEBUI-PROPOSAL-Tunnel1 
+ encryption aes-cbc-256
+ integrity sha512
+ group 19 20 21 24
+!
+crypto ikev2 policy WEBUI-POLICY 
+ match fvrf any
+ proposal WEBUI-PROPOSAL-Tunnel1
+!
+crypto ikev2 keyring WEBUI-KEYS
+ peer WEBUI-PEER-200.0.0.30
+  description KEY-PEER-200.0.0.30 
+  address 200.0.0.30 255.255.255.0
+  pre-shared-key aaaaaaaa
+ !
+!
+!
+crypto ikev2 profile WEBUI-IKEV2-PROFILE
+ match fvrf any
+ match identity remote address 200.0.0.30 255.255.255.255 
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local WEBUI-KEYS
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!         
+!
+!
+crypto ipsec transform-set WEBUI-TS-Tunnel1 esp-aes 256 esp-sha512-hmac 
+ mode tunnel
+!
+crypto ipsec profile WEBUI-IPSEC-PROFILE-Tunnel1
+ set transform-set WEBUI-TS-Tunnel1 
+ set ikev2-profile WEBUI-IKEV2-PROFILE
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface Tunnel1
+ description From PH to JP 
+ ip address 172.16.12.1 255.255.255.224
+ tunnel source GigabitEthernet2
+ tunnel mode ipsec ipv4
+ tunnel destination 200.0.0.30
+ tunnel protection ipsec profile WEBUI-IPSEC-PROFILE-Tunnel1
+!
